@@ -1,0 +1,34 @@
+import { type ReactNode, useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
+import { easing } from 'maath';
+import * as THREE from 'three';
+
+interface HeroCameraProps {
+  isMobile: boolean;
+  children: ReactNode;
+}
+
+const HeroCamera = ({ isMobile, children }: HeroCameraProps) => {
+  const group = useRef<THREE.Group>(null);
+
+  useFrame((state, delta) => {
+    easing.damp3(state.camera.position, [0, 0, 20], 0.25, delta);
+
+    if (!isMobile && group.current) {
+      easing.dampE(
+        group.current.rotation,
+        [-state.pointer.y / 3, state.pointer.x / 5, 0],
+        0.25,
+        delta
+      );
+    }
+  });
+
+  return (
+    <group ref={group} scale={isMobile ? 1 : 1.3}>
+      {children}
+    </group>
+  );
+};
+
+export default HeroCamera;
